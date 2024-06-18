@@ -1,0 +1,17 @@
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\bin\Debug\net6.0-windows\WindowsFormApp.exe
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\bin\Debug\net6.0-windows\WindowsFormApp.deps.json
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\bin\Debug\net6.0-windows\WindowsFormApp.runtimeconfig.json
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\bin\Debug\net6.0-windows\WindowsFormApp.dll
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\bin\Debug\net6.0-windows\WindowsFormApp.pdb
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.csproj.AssemblyReference.cache
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.Form.resources
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.csproj.GenerateResource.cache
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.AssemblyInfoInputs.cache
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.AssemblyInfo.cs
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.csproj.CoreCompileInputs.cache
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.dll
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\refint\WindowsFormApp.dll
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.pdb
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\WindowsFormApp.genruntimeconfig.cache
+C:\Users\79059\source\repos\Practice №2\WindowsFormApp\obj\Debug\net6.0-windows\ref\WindowsFormApp.dll
