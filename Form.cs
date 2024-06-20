@@ -4,18 +4,13 @@ namespace WindowsFormApp
 {
     public partial class Form : System.Windows.Forms.Form
     {
-
+        private int time;
         List<People> peoples = new List<People>();
         Graphics g;
 
         public Form()
         {
             InitializeComponent();
-
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
 
         }
 
@@ -49,6 +44,8 @@ namespace WindowsFormApp
                 this.trackBarRadius.Visible = false;
                 this.textBoxRadius.Visible = false;
 
+                this.TimerSimulation.Visible = true;
+
                 this.label_stats.Visible = true;
 
                 this.label_recovered.Visible = true;
@@ -59,7 +56,13 @@ namespace WindowsFormApp
 
                 this.label_healthy.Visible = true;
                 this.label_healthyCount.Visible = true;
-    
+
+                timer.Start();
+                foreach (People pl in peoples)
+                {
+                    pl.StartRandomMovement(100, ClientSize.Width, ClientSize.Height, this);
+                }
+                this.Paint += new PaintEventHandler(this.Form_Paint);
             }
             else
             {
@@ -99,13 +102,78 @@ namespace WindowsFormApp
                 this.label6.Visible = true;
                 this.trackBarRadius.Visible = true;
                 this.textBoxRadius.Visible = true;
+
+                this.TimerSimulation.Visible = false;
+
+                timer.Stop();
+
+                foreach (People pl in peoples)
+                {
+                    pl.movementTimer.Stop();
+                    pl.movementTimer = null;
+
+                }
+
+                this.Paint -= new PaintEventHandler(this.Form_Paint);
+                g.Clear(Color.White);
             }
         }
 
-        private void Form_Load(object sender, EventArgs e)
+        private void Form_Paint(object sender, PaintEventArgs e)
         {
-            
+            Graphics g = e.Graphics;
+            foreach (People pl in peoples)
+            {
+                pl.Draw(g);
+            }
         }
 
+
+        private void Form_Load(object sender, EventArgs e)
+        {
+            g = this.CreateGraphics();
+            Random rnd = new Random();
+            int x, y;
+            for (int i = 0; i < 100; i++)
+            {
+                x = rnd.Next(40, ClientSize.Width - 340);
+                y = rnd.Next(40, ClientSize.Height - 40);
+                People pl = new People(x, y);
+                peoples.Add(pl);
+            }
+            peoples[0].flagInfection = true;
+            peoples[0].brush = Brushes.Red;
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            time++;
+            TimerSimulation.Text = time.ToString();
+            Logic();
+            TimerSimulation.Refresh();
+        }
+
+        private void Logic()
+        {
+            for (int i = 0; i < peoples.Count; i++)
+            {
+                for (int j = i + 1; j < peoples.Count; j++)
+                {
+                    if (peoples[i].getDistance(peoples[j].x, peoples[j].y) < 70)
+                    {
+                        if (peoples[i].flagInfection && !peoples[j].flagInfection)
+                        {
+                            peoples[j].flagInfection = true;
+                            peoples[j].brush = Brushes.Red;
+                        }
+                        else if (peoples[j].flagInfection && !peoples[i].flagInfection)
+                        {
+                            peoples[i].flagInfection = true;
+                            peoples[i].brush = Brushes.Red;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
