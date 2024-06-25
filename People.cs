@@ -10,7 +10,7 @@ namespace WindowsFormApp
     {
         public int x { get; set; }
         public int y { get; set; }
-        private static int r = 10;
+        public static int r = 10;
         public Brush brush;
         public Timer movementTimer;
         public bool flagInfection; 
@@ -19,7 +19,7 @@ namespace WindowsFormApp
         {
             this.x = x;
             this.y = y;
-            this.brush = Brushes.Gray;
+            this.brush = Brushes.MediumSeaGreen;
             this.flagInfection = false;
         }
 
@@ -60,7 +60,7 @@ namespace WindowsFormApp
         public int getDistance(int x1, int y1)
         {
             int distance;
-            distance = System.Convert.ToInt32(Math.Sqrt(((x1 - x) * (x1 - x)) + ((y1 - y) * (y1 - y))));
+            distance = Convert.ToInt32(Math.Sqrt(((x1 - x) * (x1 - x)) + ((y1 - y) * (y1 - y))));
             return distance;
         }
     }
