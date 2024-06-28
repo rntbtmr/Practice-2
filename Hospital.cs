@@ -1,26 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Timers;
+using Timer = System.Timers.Timer;
 
 namespace WindowsFormApp
-{
-    internal class Hospital
     {
-        public int x;
-        public int y;
-        public Pen pen;
+    class Hospital
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+        public Brush brush;
 
-        public Hospital(int x, int y) {
+        public Hospital(int x, int y)
+        {
             this.x = x;
             this.y = y;
-            this.pen = Pens.Blue;
+            this.brush = Brushes.Blue;
         }
 
         public void Draw(Graphics g)
         {
-            g.DrawRectangle(pen, x, y, 50, 30);
+            g.FillRectangle(brush, this.x, this.y, 100, 50);
         }
+
     }
 }

@@ -1,13 +1,15 @@
 using System.Windows.Forms.VisualStyles;
+using System.Threading;
 
 namespace WindowsFormApp
 {
     public partial class Form : System.Windows.Forms.Form
     {
         private int time;
-        List<People> peoples = new List<People>();
-        Hospital hospital;
-        Graphics g;
+        private List<People> peoples = new List<People>();
+        private List<People> deadPeoples = new List<People>();
+        private Hospital hospital;
+        private Graphics g;
 
         public Form()
         {
@@ -18,62 +20,28 @@ namespace WindowsFormApp
         {
             if (this.button_start.Text == "Ќачать симул€цию")
             {
+                g = this.CreateGraphics();
+
                 this.button_start.Text = "ќстановить симул€цию";
 
-                this.label.Visible = false;
-                this.trackBarCapacity.Visible = false;
-                this.textBoxCapacity.Visible = false;
+                toggleVisibility(true);
 
-                this.label2.Visible = false;
-                this.trackBarDeath.Visible = false;
-                this.textBoxDeath.Visible = false;
-
-                this.label3.Visible = false;
-                this.trackBarProbability.Visible = false;
-                this.textBoxProbability.Visible = false;
-
-                this.label4.Visible = false;
-                this.trackBarIncubation.Visible = false;
-                this.textBoxIncubation.Visible = false;
-
-                this.label5.Visible = false;
-                this.trackBarAmount.Visible = false;
-                this.textBoxAmount.Visible = false;
-
-                this.label6.Visible = false;
-                this.trackBarRadius.Visible = false;
-                this.textBoxRadius.Visible = false;
-
-                this.TimerSimulation.Visible = true;
-
-                this.label_stats.Visible = true;
-
-                this.label_recovered.Visible = true;
-                this.label_recoveredCount.Visible = true;
-
-                this.label_patients.Visible = true;
-                this.label_patientsCount.Visible = true;
-
-                this.label_healthy.Visible = true;
-                this.label_healthyCount.Visible = true;
-
-                g = this.CreateGraphics();
                 Random rnd = new Random();
                 int x, y;
                 for (int i = 0; i < trackBarAmount.Value; i++)
                 {
-                    x = rnd.Next(40, ClientSize.Width - 340);
+                    x = rnd.Next(40, ClientSize.Width - 390);
                     y = rnd.Next(40, ClientSize.Height - 40);
                     People pl = new People(x, y);
                     peoples.Add(pl);
                 }
-                peoples[0].flagInfection = true;
-                peoples[0].brush = Brushes.Red;
+                x = rnd.Next(0, trackBarAmount.Value);
+                peoples[x].brush = Brushes.Pink;
 
-                hospital = new Hospital(200, 200);
                 timer.Start();
+
                 foreach (People pl in peoples)
-                {
+                {   
                     pl.StartRandomMovement(100, ClientSize.Width, ClientSize.Height, this);
                 }
                 this.Paint += new PaintEventHandler(this.Form_Paint);
@@ -82,44 +50,11 @@ namespace WindowsFormApp
             {
                 this.button_start.Text = "Ќачать симул€цию";
 
-                this.label_stats.Visible = false;
-
-                this.label_recovered.Visible = false;
-                this.label_recoveredCount.Visible = false;
-
-                this.label_patients.Visible = false;
-                this.label_patientsCount.Visible = false;
-
-                this.label_healthy.Visible = false;
-                this.label_healthyCount.Visible = false;
-
-                this.label.Visible = true;
-                this.trackBarCapacity.Visible = true;
-                this.textBoxCapacity.Visible = true;
-
-                this.label2.Visible = true;
-                this.trackBarDeath.Visible = true;
-                this.textBoxDeath.Visible = true;
-
-                this.label3.Visible = true;
-                this.trackBarProbability.Visible = true;
-                this.textBoxProbability.Visible = true;
-
-                this.label4.Visible = true;
-                this.trackBarIncubation.Visible = true;
-                this.textBoxIncubation.Visible = true;
-
-                this.label5.Visible = true;
-                this.trackBarAmount.Visible = true;
-                this.textBoxAmount.Visible = true;
-
-                this.label6.Visible = true;
-                this.trackBarRadius.Visible = true;
-                this.textBoxRadius.Visible = true;
-
-                this.TimerSimulation.Visible = false;
+                toggleVisibility(false);
 
                 timer.Stop();
+
+                time = 0;
 
                 foreach (People pl in peoples)
                 {
@@ -128,31 +63,44 @@ namespace WindowsFormApp
 
                 }
 
+                peoples.Clear();
+                deadPeoples.Clear();
+
                 this.Paint -= new PaintEventHandler(this.Form_Paint);
+
+                Invalidate();
             }
         }
 
         private void Form_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
+
             foreach (People pl in peoples)
-            {
                 pl.Draw(g);
-            }
-            hospital.Draw(g);
+            foreach (People pl in deadPeoples)
+                pl.Draw(g);
         }
 
         private void timer_Tick(object sender, EventArgs e)
         {
             int amountHealthy = 0, amountDeath = 0, amountPatient = 0;
             time++;
-            TimerSimulation.Text = time.ToString();
+            TimerSimulation.Text = Convert.ToString(time/10);
             Logic();
-            foreach(People pl in peoples)
+            foreach (People pl in peoples)
             {
                 if (pl.flagInfection == false)
                     amountHealthy++;
                 else amountPatient++;
+
+                if (pl.brush == Brushes.Pink)
+                    pl.timeIncubation++;
+                if (pl.timeIncubation > trackBarIncubation.Value * 10)
+                {
+                    pl.brush = Brushes.Red;
+                    pl.flagInfection = true;
+                }
             }
             label_healthyCount.Text = Convert.ToString(amountHealthy);
             label_patientsCount.Text = Convert.ToString(amountPatient);
@@ -172,22 +120,29 @@ namespace WindowsFormApp
                             Random random = new Random();
                             int probability = random.Next(1, 101);
                             if (probability <= trackBarProbability.Value)
-                            {
-                                peoples[j].flagInfection = true;
-                                peoples[j].brush = Brushes.Red;
-                            }
+                                peoples[j].brush = Brushes.Pink;
+                            
                         }
                         else if (peoples[j].flagInfection && !peoples[i].flagInfection)
                         {
                             Random random = new Random();
                             int probability = random.Next(1, 101);
                             if (probability <= trackBarProbability.Value)
-                            {
-                                peoples[i].flagInfection = true;
-                                peoples[i].brush = Brushes.Red;
-                            }
+                                peoples[i].brush = Brushes.Pink;
                         }
                     }
+                    //if (time % 50 == 0)
+                    //    if (peoples[i].flagInfection)
+                    //    {
+                    //        Random random = new Random();
+                    //        int probabilityDeath = random.Next(1, 101);
+                    //        if (probabilityDeath <= trackBarDeath.Value)
+                    //        {
+                    //            peoples[i].brush = Brushes.Gray;
+                    //            peoples[i].flagDeath = true;
+                    //        }
+                    //    }
+                    
                 }
             }
         }
@@ -220,6 +175,46 @@ namespace WindowsFormApp
         private void trackBarRadius_Scroll(object sender, EventArgs e)
         {
             textBoxRadius.Text = trackBarRadius.Value.ToString();
+        }
+
+        private void toggleVisibility(bool visible)
+        {
+            this.label.Visible = !visible;
+            this.trackBarCapacity.Visible = !visible;
+            this.textBoxCapacity.Visible = !visible;
+
+            this.label2.Visible = !visible;
+            this.trackBarDeath.Visible = !visible;
+            this.textBoxDeath.Visible = !visible;
+
+            this.label3.Visible = !visible;
+            this.trackBarProbability.Visible = !visible;
+            this.textBoxProbability.Visible = !visible;
+
+            this.label4.Visible = !visible;
+            this.trackBarIncubation.Visible = !visible;
+            this.textBoxIncubation.Visible = !visible;
+
+            this.label5.Visible = !visible;
+            this.trackBarAmount.Visible = !visible;
+            this.textBoxAmount.Visible = !visible;
+
+            this.label6.Visible = !visible;
+            this.trackBarRadius.Visible = !visible;
+            this.textBoxRadius.Visible = !visible;
+
+            this.TimerSimulation.Visible = visible;
+
+            this.label_stats.Visible = visible;
+
+            this.label_recovered.Visible = visible;
+            this.label_recoveredCount.Visible = visible;
+
+            this.label_patients.Visible = visible;
+            this.label_patientsCount.Visible = visible;
+
+            this.label_healthy.Visible = visible;
+            this.label_healthyCount.Visible = visible;
         }
     }
 }

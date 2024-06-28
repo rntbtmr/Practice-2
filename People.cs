@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Timers;
 using Timer = System.Timers.Timer;
+using System.Security.Cryptography.Xml;
 
 namespace WindowsFormApp
 {
@@ -13,7 +14,12 @@ namespace WindowsFormApp
         public static int r = 10;
         public Brush brush;
         public Timer movementTimer;
-        public bool flagInfection; 
+        public bool flagInfection;
+        public bool flagDeath;
+        public bool flagRecovered;
+        public int timeIncubation;
+        private int dx;
+        private int dy;
 
         public People(int x, int y)
         {
@@ -21,12 +27,22 @@ namespace WindowsFormApp
             this.y = y;
             this.brush = Brushes.MediumSeaGreen;
             this.flagInfection = false;
+            this.flagDeath = false;
+            this.flagRecovered = false;
+            this.timeIncubation = 0;
+            Random random = new Random();
+            this.dx = random.Next(-1, 2);
+            this.dy = random.Next(-1, 2);
+            if (dx == 0 && dy == 0) // To avoid zero direction
+            {
+                dx = 1;
+            }
         }
 
-        public void Move(int dx, int dy, int Width, int Height)
+        public void Move()
         {
-            this.x = Math.Max(r, Math.Min(Width - r, this.x + dx));
-            this.y = Math.Max(r, Math.Min(Height - r, this.y + dy));
+            this.x += dx;
+            this.y += dy;
         }
 
         public void Draw(Graphics g)
@@ -51,10 +67,20 @@ namespace WindowsFormApp
 
         public void RandomMove(int Width, int Height)
         {
-            Random random = new Random();
-            int dx = random.Next(-1, 2);
-            int dy = random.Next(-1, 2); 
-            Move(dx, dy, Width, Height);
+            Move();
+            CheckCollision(Width, Height);
+        }
+
+        private void CheckCollision(int Width, int Height)
+        {
+            if (x <= r || x >= Width - r)
+            {
+                dx = -dx;
+            }
+            if (y <= r || y >= Height - r)
+            {
+                dy = -dy;
+            }
         }
 
         public int getDistance(int x1, int y1)
