@@ -3,32 +3,26 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Timers;
 using Timer = System.Timers.Timer;
-using System.Security.Cryptography.Xml;
 
 namespace WindowsFormApp
 {
-    class People
+    abstract class Human
     {
         public int x { get; set; }
         public int y { get; set; }
         public static int r = 10;
         public Brush brush;
         public Timer movementTimer;
-        public bool flagInfection;
-        public bool flagDeath;
-        public bool flagRecovered;
         public int timeIncubation;
-        private int dx;
-        private int dy;
+        public int immunity;
+        public int dx;
+        public int dy;
 
-        public People(int x, int y)
+        public Human(int x, int y, Brush brush)
         {
             this.x = x;
             this.y = y;
-            this.brush = Brushes.MediumSeaGreen;
-            this.flagInfection = false;
-            this.flagDeath = false;
-            this.flagRecovered = false;
+            this.brush = brush;
             this.timeIncubation = 0;
             Random random = new Random();
             this.dx = random.Next(-1, 2);
@@ -39,7 +33,17 @@ namespace WindowsFormApp
             }
         }
 
-        public void Move()
+        public Human(int x, int y, int dx, int dy, Brush brush)
+        {
+            this.x = x;
+            this.y = y;
+            this.brush = brush;
+            this.timeIncubation = 0;
+            this.dx = dx;
+            this.dy = dy;
+        }
+
+            public void Move()
         {
             this.x += dx;
             this.y += dy;
@@ -58,17 +62,12 @@ namespace WindowsFormApp
                 movementTimer.Interval = interval;
                 movementTimer.Elapsed += (sender, e) =>
                 {
-                    RandomMove(Width, Height);
+                    Move();
+                    CheckCollision(Width, Height);
                     form.Invalidate();
                 };
                 movementTimer.Start();
             }
-        }
-
-        public void RandomMove(int Width, int Height)
-        {
-            Move();
-            CheckCollision(Width, Height);
         }
 
         private void CheckCollision(int Width, int Height)

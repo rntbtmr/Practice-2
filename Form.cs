@@ -6,9 +6,7 @@ namespace WindowsFormApp
     public partial class Form : System.Windows.Forms.Form
     {
         private int time;
-        private List<People> peoples = new List<People>();
-        private List<People> deadPeoples = new List<People>();
-        private Hospital hospital;
+        private List<Human> peoples = new List<Human>();
         private Graphics g;
 
         public Form()
@@ -32,17 +30,18 @@ namespace WindowsFormApp
                 {
                     x = rnd.Next(40, ClientSize.Width - 390);
                     y = rnd.Next(40, ClientSize.Height - 40);
-                    People pl = new People(x, y);
-                    peoples.Add(pl);
+                    HealthyHuman hh = new HealthyHuman(x, y);
+                    peoples.Add(hh);
                 }
                 x = rnd.Next(0, trackBarAmount.Value);
-                peoples[x].brush = Brushes.Pink;
+                SickHuman sh = new SickHuman(peoples[x].x, peoples[x].y);
+                peoples[x] = sh;
 
                 timer.Start();
 
-                foreach (People pl in peoples)
-                {   
-                    pl.StartRandomMovement(100, ClientSize.Width, ClientSize.Height, this);
+                foreach (Human pl in peoples)
+                {
+                    pl.StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
                 }
                 this.Paint += new PaintEventHandler(this.Form_Paint);
             }
@@ -56,15 +55,13 @@ namespace WindowsFormApp
 
                 time = 0;
 
-                foreach (People pl in peoples)
+                foreach (Human pl in peoples)
                 {
                     pl.movementTimer.Stop();
                     pl.movementTimer = null;
-
                 }
 
                 peoples.Clear();
-                deadPeoples.Clear();
 
                 this.Paint -= new PaintEventHandler(this.Form_Paint);
 
@@ -72,13 +69,48 @@ namespace WindowsFormApp
             }
         }
 
+        private void Logic()
+        {
+            for (int i = 0; i < peoples.Count; i++)
+            {
+                for (int j = i + 1; j < peoples.Count; j++)
+                {
+                    if (peoples[i].getDistance(peoples[j].x, peoples[j].y) < trackBarRadius.Value + Human.r)
+                    {
+                        if (peoples[i] is SickHuman && peoples[j] is HealthyHuman)
+                        {
+                            Random random = new Random();
+                            int probability = random.Next(1, 101);
+                            if (probability <= trackBarProbability.Value)
+                                if (probability > peoples[j].immunity)
+                                {
+                                    peoples[j] = new InfectedHuman(peoples[j].x, peoples[j].y, peoples[j].dx, peoples[j].dy);
+                                    peoples[j].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
+                                }
+                        }
+                        else if (peoples[j] is SickHuman && peoples[i] is HealthyHuman)
+                        {
+                            Random random = new Random();
+                            int probability = random.Next(1, 101);
+                            if (probability <= trackBarProbability.Value)
+                                if (probability > peoples[i].immunity)
+                                {
+                                    peoples[i] = new InfectedHuman(peoples[i].x, peoples[i].y, peoples[i].dx, peoples[i].dy);
+                                    peoples[i].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
+                                }
+                        }
+                    }
+
+
+                }
+            }
+        }
+
         private void Form_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
 
-            foreach (People pl in peoples)
-                pl.Draw(g);
-            foreach (People pl in deadPeoples)
+            foreach (Human pl in peoples)
                 pl.Draw(g);
         }
 
@@ -88,63 +120,23 @@ namespace WindowsFormApp
             time++;
             TimerSimulation.Text = Convert.ToString(time/10);
             Logic();
-            foreach (People pl in peoples)
+            for (int i = 0; i < trackBarAmount.Value; i++)
             {
-                if (pl.flagInfection == false)
-                    amountHealthy++;
-                else amountPatient++;
+                if (peoples[i] is SickHuman)
+                    amountPatient++;
+                else amountHealthy++;
 
-                if (pl.brush == Brushes.Pink)
-                    pl.timeIncubation++;
-                if (pl.timeIncubation > trackBarIncubation.Value * 10)
+                if (peoples[i] is InfectedHuman)
+                    peoples[i].timeIncubation++;
+                if (peoples[i].timeIncubation > trackBarIncubation.Value * 10)
                 {
-                    pl.brush = Brushes.Red;
-                    pl.flagInfection = true;
+                    peoples[i] = new SickHuman(peoples[i].x, peoples[i].y, peoples[i].dx, peoples[i].dy);
+                    peoples[i].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
                 }
             }
             label_healthyCount.Text = Convert.ToString(amountHealthy);
             label_patientsCount.Text = Convert.ToString(amountPatient);
             TimerSimulation.Refresh();
-        }
-
-        private void Logic()
-        {
-            for (int i = 0; i < peoples.Count; i++)
-            {
-                for (int j = i + 1; j < peoples.Count; j++)
-                {
-                    if (peoples[i].getDistance(peoples[j].x, peoples[j].y) < trackBarRadius.Value + People.r)
-                    {
-                        if (peoples[i].flagInfection && !peoples[j].flagInfection)
-                        {
-                            Random random = new Random();
-                            int probability = random.Next(1, 101);
-                            if (probability <= trackBarProbability.Value)
-                                peoples[j].brush = Brushes.Pink;
-                            
-                        }
-                        else if (peoples[j].flagInfection && !peoples[i].flagInfection)
-                        {
-                            Random random = new Random();
-                            int probability = random.Next(1, 101);
-                            if (probability <= trackBarProbability.Value)
-                                peoples[i].brush = Brushes.Pink;
-                        }
-                    }
-                    //if (time % 50 == 0)
-                    //    if (peoples[i].flagInfection)
-                    //    {
-                    //        Random random = new Random();
-                    //        int probabilityDeath = random.Next(1, 101);
-                    //        if (probabilityDeath <= trackBarDeath.Value)
-                    //        {
-                    //            peoples[i].brush = Brushes.Gray;
-                    //            peoples[i].flagDeath = true;
-                    //        }
-                    //    }
-                    
-                }
-            }
         }
 
         private void trackBarCapacity_Scroll(object sender, EventArgs e)
