@@ -101,7 +101,21 @@ namespace WindowsFormApp
                         }
                     }
 
-
+                    if (time % 50 == 0)
+                    {
+                        if (peoples[i] is SickHuman)
+                        {
+                            Random random = new Random();
+                            int probabilityDeath = random.Next(1, 101);
+                            if (probabilityDeath <= trackBarDeath.Value)
+                                peoples[i] = new DeadHuman(peoples[i].x, peoples[i].y);
+                            else
+                            {
+                                peoples[i] = new RecoveredHuman(peoples[i].x, peoples[i].y, peoples[i].dx, peoples[i].dy);
+                                peoples[i].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -116,26 +130,44 @@ namespace WindowsFormApp
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            int amountHealthy = 0, amountDeath = 0, amountPatient = 0;
+            int amountHealthy = 0, amountDeath = 0, amountPatient = 0, amountInfected = 0, amountRecovered = 0;
             time++;
-            TimerSimulation.Text = Convert.ToString(time/10);
+            TimerSimulation.Text = Convert.ToString(time / 10);
             Logic();
             for (int i = 0; i < trackBarAmount.Value; i++)
             {
-                if (peoples[i] is SickHuman)
-                    amountPatient++;
-                else amountHealthy++;
-
                 if (peoples[i] is InfectedHuman)
                     peoples[i].timeIncubation++;
+
                 if (peoples[i].timeIncubation > trackBarIncubation.Value * 10)
                 {
                     peoples[i] = new SickHuman(peoples[i].x, peoples[i].y, peoples[i].dx, peoples[i].dy);
                     peoples[i].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
                 }
+
+                if (peoples[i] is SickHuman)
+                    amountPatient++;
+
+                if (peoples[i] is DeadHuman)
+                    amountDeath++;
+
+                if (peoples[i] is HealthyHuman)
+                    amountHealthy++;
+
+                if (peoples[i] is RecoveredHuman)
+                    amountRecovered++;
+
+                if (peoples[i] is InfectedHuman)
+                    amountInfected++;
+
             }
+
             label_healthyCount.Text = Convert.ToString(amountHealthy);
             label_patientsCount.Text = Convert.ToString(amountPatient);
+            label_deadCount.Text = Convert.ToString(amountDeath);
+            label_recoveredCount.Text = Convert.ToString(amountRecovered);
+            label_infectedCount.Text = Convert.ToString(amountInfected);
+
             TimerSimulation.Refresh();
         }
 
@@ -207,6 +239,12 @@ namespace WindowsFormApp
 
             this.label_healthy.Visible = visible;
             this.label_healthyCount.Visible = visible;
+
+            this.label_dead.Visible = visible;
+            this.label_deadCount.Visible = visible;
+
+            this.label_infected.Visible = visible;
+            this.label_infectedCount.Visible = visible;
         }
     }
 }

@@ -8,6 +8,6 @@ namespace WindowsFormApp
 {
     class RecoveredHuman : Human
     {
-        public RecoveredHuman(int x, int y) : base(x, y, Brushes.Blue) { }
+        public RecoveredHuman(int x, int y, int dx, int dy) : base(x, y, dx, dy, Brushes.Blue) { }
     }
 }
