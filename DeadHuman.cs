@@ -8,7 +8,7 @@ namespace WindowsFormApp
 {
     internal class DeadHuman : Human
     {
-        public DeadHuman(int x, int y) : base(x, y, Brushes.Gray) 
+        public DeadHuman(int x, int y) : base(x, y, Brushes.Black) 
         {
             movementTimer = new System.Timers.Timer();
         }

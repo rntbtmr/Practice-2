@@ -5,8 +5,8 @@ namespace WindowsFormApp
 {
     public partial class Form : System.Windows.Forms.Form
     {
-        private int time;
-        private List<Human> peoples = new List<Human>();
+        private int time; // поле дл подсчета времени симул€ции
+        private List<Human> peoples = new List<Human>(); 
         private Graphics g;
 
         public Form()
@@ -23,7 +23,8 @@ namespace WindowsFormApp
                 this.button_start.Text = "ќстановить симул€цию";
 
                 toggleVisibility(true);
-
+                
+                // создание объектов
                 Random rnd = new Random();
                 int x, y;
                 for (int i = 0; i < trackBarAmount.Value; i++)
@@ -34,8 +35,7 @@ namespace WindowsFormApp
                     peoples.Add(hh);
                 }
                 x = rnd.Next(0, trackBarAmount.Value);
-                SickHuman sh = new SickHuman(peoples[x].x, peoples[x].y);
-                peoples[x] = sh;
+                peoples[x] = new SickHuman(peoples[x].x, peoples[x].y);
 
                 timer.Start();
 
@@ -71,6 +71,9 @@ namespace WindowsFormApp
 
         private void Logic()
         {
+            Random random = new Random();
+            
+            // проверка заражени€
             for (int i = 0; i < peoples.Count; i++)
             {
                 for (int j = i + 1; j < peoples.Count; j++)
@@ -79,7 +82,6 @@ namespace WindowsFormApp
                     {
                         if (peoples[i] is SickHuman && peoples[j] is HealthyHuman)
                         {
-                            Random random = new Random();
                             int probability = random.Next(1, 101);
                             if (probability <= trackBarProbability.Value)
                                 if (probability > peoples[j].immunity)
@@ -90,7 +92,6 @@ namespace WindowsFormApp
                         }
                         else if (peoples[j] is SickHuman && peoples[i] is HealthyHuman)
                         {
-                            Random random = new Random();
                             int probability = random.Next(1, 101);
                             if (probability <= trackBarProbability.Value)
                                 if (probability > peoples[i].immunity)
@@ -100,20 +101,23 @@ namespace WindowsFormApp
                                 }
                         }
                     }
+                }
+            }
 
-                    if (time % 50 == 0)
+            // проверка выздоровлени€ или смерти
+            if (time % 50 == 0)
+            {
+                for (int i = 0; i < peoples.Count; i++)
+                {
+                    if (peoples[i] is SickHuman)
                     {
-                        if (peoples[i] is SickHuman)
+                        int probabilityDeath = random.Next(1, 101);
+                        if (probabilityDeath <= trackBarDeath.Value)
+                            peoples[i] = new DeadHuman(peoples[i].x, peoples[i].y);
+                        else
                         {
-                            Random random = new Random();
-                            int probabilityDeath = random.Next(1, 101);
-                            if (probabilityDeath <= trackBarDeath.Value)
-                                peoples[i] = new DeadHuman(peoples[i].x, peoples[i].y);
-                            else
-                            {
-                                peoples[i] = new RecoveredHuman(peoples[i].x, peoples[i].y, peoples[i].dx, peoples[i].dy);
-                                peoples[i].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
-                            }
+                            peoples[i] = new RecoveredHuman(peoples[i].x, peoples[i].y, peoples[i].dx, peoples[i].dy);
+                            peoples[i].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
                         }
                     }
                 }
@@ -139,17 +143,18 @@ namespace WindowsFormApp
                 if (peoples[i] is InfectedHuman)
                     peoples[i].timeIncubation++;
 
+                // проверка инкубационного периода
                 if (peoples[i].timeIncubation > trackBarIncubation.Value * 10)
                 {
                     peoples[i] = new SickHuman(peoples[i].x, peoples[i].y, peoples[i].dx, peoples[i].dy);
                     peoples[i].StartRandomMovement(40, ClientSize.Width - 390, ClientSize.Height, this);
                 }
 
+                // подсчет статистики
                 if (peoples[i] is SickHuman)
                     amountPatient++;
 
-                if (peoples[i] is DeadHuman)
-                    amountDeath++;
+                if (peoples[i] is DeadHuman) amountDeath++;
 
                 if (peoples[i] is HealthyHuman)
                     amountHealthy++;
@@ -169,11 +174,6 @@ namespace WindowsFormApp
             label_infectedCount.Text = Convert.ToString(amountInfected);
 
             TimerSimulation.Refresh();
-        }
-
-        private void trackBarCapacity_Scroll(object sender, EventArgs e)
-        {
-            textBoxCapacity.Text = trackBarCapacity.Value.ToString();
         }
 
         private void trackBarDeath_Scroll(object sender, EventArgs e)
@@ -203,9 +203,7 @@ namespace WindowsFormApp
 
         private void toggleVisibility(bool visible)
         {
-            this.label.Visible = !visible;
-            this.trackBarCapacity.Visible = !visible;
-            this.textBoxCapacity.Visible = !visible;
+            this.label1.Visible = !visible;
 
             this.label2.Visible = !visible;
             this.trackBarDeath.Visible = !visible;

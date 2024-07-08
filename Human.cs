@@ -14,7 +14,7 @@ namespace WindowsFormApp
         public Brush brush;
         public Timer movementTimer;
         public int timeIncubation;
-        public int immunity;
+        public int immunity; // у каждого здорового объекта есть свой индивидуальный иммунитет
         public int dx;
         public int dy;
 
@@ -43,7 +43,7 @@ namespace WindowsFormApp
             this.dy = dy;
         }
 
-            public void Move()
+        public void Move()
         {
             this.x += dx;
             this.y += dy;
@@ -82,6 +82,7 @@ namespace WindowsFormApp
             }
         }
 
+        // метод нахождения дистанции от одного объекта до другого
         public int getDistance(int x1, int y1)
         {
             int distance;
